@@ -112,6 +112,12 @@ module.exports._generate_jti = () => {
 }
 
 module.exports.rlog_mw = (req, res, next) => {
-  console.log('\x1b[33m[' + req.method + ']\x1b[0m ' + req.originalUrl);
+  console.log('\n\x1b[33m[' + req.method + ']\x1b[0m ' + req.originalUrl);
   next();
 }
+
+module.exports.asyncWrap = fn =>
+  (req, res, next) => {
+    Promise.resolve(fn(req, res, next))
+      .catch(next);
+};

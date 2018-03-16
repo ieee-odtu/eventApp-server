@@ -13,7 +13,7 @@ import server_config from './config/server';
 
 import _jwt from './middleware/jwt';
 
-import {rlog_mw} from './util';
+import {rlog_mw, _EUNEXP} from './util';
 
 import route_users from './routes/users';
 //import route_sess from './routes/sessions';
@@ -83,6 +83,23 @@ mongoose.connect(db_config.database)
 
 		app.use('*', (req, res) => {
 			return res.status(404).end('Unimplemented or unknown API endpoint');
+		});
+
+		app.use((err, req, res, next) => {
+			console.error('\x1b[1m\x1b[31m[ERROR]', err.name + '\x1b[0m');
+			if (!res.headersSent) {
+				switch (err.name) {
+					case 'JsonWebTokenError':
+						res.status(401).json({
+							code: 'JV_ERR',
+							err: err,
+							middleware: 'JV'
+						});
+						break;
+					default:
+						_EUNEXP(res, err);
+				}
+			}
 		});
 
 		app.listen(_api_port, (err) => {
