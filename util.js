@@ -104,8 +104,7 @@ module.exports._FAIL = (res, code, middleware) => {
   if (typeof middleware != 'undefined') {
     response['middleware'] = middleware;
   }
-  //return res.status(get_status_or_500(code)).json(response);
-  return res.json(response);
+  return res.status(get_status_or_500(code)).json(response);
 }
 
 module.exports._generate_jti = () => {
