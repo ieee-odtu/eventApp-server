@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
 
-import constants from '../config/constants';
+const LOCS = ['gate', 'desk'];
 
 const LocationSchema = mongoose.Schema({
   location: {
     type: String,
-    enum: constants.models.Locations,
+    enum: LOCS,
     required: true
   },
   position: {

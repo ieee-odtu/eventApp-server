@@ -1,8 +1,5 @@
 import mongoose from 'mongoose';
 
-import {SessionSchema} from './session';
-import {LocationSchema} from './location';
-
 const UTYPES = ['admin', 'staff', 'participant'];
 
 const ContactSchema = mongoose.Schema({
@@ -41,13 +38,13 @@ const UserSchema = mongoose.Schema({
     }
   },
   sessions: {
-    type: [SessionSchema],
+    type: [String], // Session id's
     required: function () {
       return this.position == 'participant';
     }
   },
   location: {
-    type: LocationSchema,
+    type: String, // Loc id
     required: function () {
       return this.position == 'staff';
     }

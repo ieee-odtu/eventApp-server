@@ -5,8 +5,10 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import fs from 'fs';
 import helmet from 'helmet';
+import morgan from 'morgan';
+import path from 'path';
 
-import db_config from './config/database';
+import db_config from './config/db';
 import server_config from './config/server';
 
 import _jwt from './middleware/jwt';
@@ -14,8 +16,8 @@ import _jwt from './middleware/jwt';
 import {rlog_mw} from './util';
 
 import route_users from './routes/users';
-import route_sess from './routes/sessions';
-import route_locs from './routes/locations';
+//import route_sess from './routes/sessions';
+//import route_locs from './routes/locations';
 import route_auth from './routes/auth';
 
 const package_json_parsed = JSON.parse(fs.readFileSync('package.json'));
@@ -45,6 +47,9 @@ mongoose.connect(db_config.database)
 			policy: 'same-origin'
 		}));
 
+		var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
+		app.use(morgan('combined', {stream: accessLogStream}));
+
 		// Cors middlware for cross-origin resource sharin
 		// TODO: This configuration of CORS is not safe
 		app.use(cors());
@@ -60,7 +65,6 @@ mongoose.connect(db_config.database)
 			next();
 		});
 
-		app.use(_jwt.jwtValidate({onhnd: _jwt.v_onHnd_A}));
 		app.use(rlog_mw);
 
 		app.get('/', (req, res, next) => {
@@ -73,8 +77,8 @@ mongoose.connect(db_config.database)
 		});
 
 		app.use('/u', route_users);
-		app.use('/s', route_sess);
-		app.use('/loc', route_locs);
+		//app.use('/s', route_sess);
+		//app.use('/loc', route_locs);
 		app.use('/auth', route_auth);
 
 		app.use('*', (req, res) => {
