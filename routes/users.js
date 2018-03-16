@@ -64,8 +64,7 @@ router.get('/:uid', jwtValidate('utype', ['admin']), (req, res, next) => {
     })
     .catch(err => {
       return _EUNEXP(res, err, {
-        id: req.params.uid,
-        found: found
+        id: req.params.uid
       });
     });
 });
