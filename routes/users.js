@@ -18,33 +18,19 @@ router.get('/', jwtValidate('utype', ['admin']), asyncWrap(async (req, res, next
   }
 }));
 
-router.post('/', jwtValidate('utype', ['admin', 'staff']), (req, res, next) => {
-  User.findOne({email: req.body.user.email})
-    .then(found => {
-      if (found) {
-        return _FAIL(res, 'REG_EMAIL');
-      } else {
-        if (req.user.position == 'staff' && req.body.utype != 'participant') {
-          return _FAIL(res, 'E_UNAUTH');
-        }
-        req.body.user.position = req.body.utype;
-        User.createNew(req.body.user, (err, ret) => {
-          if (err) return _ERR(res, err, {
-            user: req.body.user,
-            ret: ret
-          });
-          return _CREATED(res, 'User', {
-            ret: ret
-          });
-        });
-      }
-    })
-    .catch(err => {
-      return _EUNEXP(res, err, {
-        user: req.body.user
-      });
-    });
-});
+router.post('/', jwtValidate('utype', ['admin', 'staff']), asyncWrap(async (req, res, next) => {
+  let found = await User.findOne({email: req.body.user.email})
+  if (found) {
+    return _FAIL(res, 'REG_EMAIL');
+  } else {
+    if (req.user.position == 'staff' && req.body.utype != 'participant') {
+      return _FAIL(res, 'E_UNAUTH');
+    }
+    req.body.user.position = req.body.utype;
+    await User.createNew(req.body.user)
+    return _CREATED(res, 'User');
+  }
+}));
 
 router.get('/:uid', jwtValidate('utype', ['admin']), asyncWrap(async (req, res, next) => {
   let found = await User.findById(req.params.uid, {_id: 0, __v: 0, password: 0, _jti: 0})
