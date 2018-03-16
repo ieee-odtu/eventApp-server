@@ -18,12 +18,9 @@ router.get('/', jwtValidate('utype', ['admin']), (req, res, next) => {
       return _FAIL(res, 'U_NF');
     } else {
       console.log('Want to return _SUCC')
-      //return _SUCC(res, {
-      //  users: users
-      //});
-      return res.status(200).json({
+      return _SUCC(res, {
         users: users
-      })
+      });
     }
   });
 });
