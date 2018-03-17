@@ -33,5 +33,8 @@ module.exports = {
   },
   'WRONG_PWD': {
     stat: 409
+  },
+  'INV_DATA': {
+    stat: 409
   }
 }
