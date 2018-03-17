@@ -1,4 +1,7 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+
+import {_generate_jti} from '../util';
 
 const UTYPES = ['admin', 'staff', 'participant'];
 
@@ -55,6 +58,12 @@ const UserSchema = mongoose.Schema({
       return ['admin', 'staff'].includes(this.position);
     }
   },
+  email: {
+    type: String,
+    required: function () {
+      return ['admin', 'staff'].includes(this.position);
+    }
+  },
   _jti: {
     type: String,
     required: function () {
@@ -66,3 +75,33 @@ const UserSchema = mongoose.Schema({
 const User = mongoose.model('user', UserSchema);
 
 module.exports = User;
+
+//module.exports.createNew = (new_user) => {
+//  let new_instance = new User(new_user);
+//  if (['admin', 'staff'].includes(new_instance.position)) {
+//    new_instance._jti = _generate_jti();
+//  }
+//  bcrypt.genSalt(10, (err, salt) => {
+//		if (err) throw(err);
+//		bcrypt.hash(new_user.password, salt, (err, hash) => {
+//			if (err) throw(err);
+//			new_instance.password = hash;
+//			new_instance.email = new_user.email.toLowerCase();
+//      new_instance.save((err, _) => {
+//        if (err) throw new Error(err);
+//      });
+//		});
+//	});
+//}
+
+module.exports.createNew = async (new_user) => {
+  let new_instance = new User(new_user);
+  if (['admin', 'staff'].includes(new_instance.position)) {
+    new_instance._jti = _generate_jti();
+  }
+  let salt = await bcrypt.genSalt(10)
+	let hash = await bcrypt.hash(new_user.password, salt)
+	new_instance.password = hash;
+	new_instance.email = new_user.email.toLowerCase();
+  await new_instance.save();
+}

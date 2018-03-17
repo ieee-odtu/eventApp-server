@@ -96,6 +96,12 @@ mongoose.connect(db_config.database)
 							middleware: 'JV'
 						});
 						break;
+					case 'CastError':
+						res.status(409).json({
+							code: 'INV_DATA',
+							err: err
+						});
+						break;
 					default:
 						_EUNEXP(res, err);
 				}
