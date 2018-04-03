@@ -36,5 +36,9 @@ module.exports = {
   },
   'INV_DATA': {
     stat: 409
+  },
+  'REG_SESS_DT': {
+    stat: 409,
+    msg: 'Registrated another session at specified date and time'
   }
 }

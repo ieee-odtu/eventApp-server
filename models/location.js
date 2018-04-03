@@ -8,7 +8,7 @@ const LocationSchema = mongoose.Schema({
     enum: LOCS,
     required: true
   },
-  position: {
+  position: { // Detailed loc info
     type: String,
     required: true
   }
@@ -17,3 +17,8 @@ const LocationSchema = mongoose.Schema({
 const Location = mongoose.model('location', LocationSchema);
 
 module.exports = Location;
+
+module.exports.createNew = async (new_loc) => {
+  let new_instance = new Session(new_loc);
+  await new_instance.save();
+}

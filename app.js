@@ -87,6 +87,7 @@ mongoose.connect(db_config.database)
 
 		app.use((err, req, res, next) => {
 			console.error('\x1b[1m\x1b[31m[ERROR]', err.name + '\x1b[0m');
+			console.error(Object.assign({}, err));
 			if (!res.headersSent) {
 				switch (err.name) {
 					case 'JsonWebTokenError':

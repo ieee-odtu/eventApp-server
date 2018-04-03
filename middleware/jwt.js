@@ -37,7 +37,7 @@ module.exports.jwtValidate = (vc, vopt) => {
           if (vopt.includes(found.position)) {
             req.user = found;
             console.log('[JV] +', found.name);
-            next();
+            return next();
           } else {
             return _FAIL(res, 'E_UNAUTH', 'JV');
           }

@@ -26,3 +26,8 @@ const SessionSchema = mongoose.Schema({
 const Session = mongoose.model('session', SessionSchema);
 
 module.exports = Session;
+
+module.exports.createNew = async (new_session) => {
+  let new_instance = new Session(new_session);
+  await new_instance.save();
+}

@@ -5,10 +5,10 @@ import User from '../models/user';
 import Session from '../models/session';
 
 import {jwtValidate} from '../middleware/jwt';
-import {_EUNEXP, _E_CAST, _CREATED, _FAIL, _SUCC, asyncWrap} from '../util';
+import {_EUNEXP, _E_CAST, _CREATED, _REMOVED, _FAIL, _SUCC, asyncWrap} from '../util';
 
 router.get('/', jwtValidate('utype', ['admin']), asyncWrap(async (req, res, next) => {
-  let users = await User.find({}, {_id: 0, __v: 0, password: 0, _jti: 0})
+  let users = await User.find({}, {__v: 0, password: 0, _jti: 0})
   if (users.length == 0) {
     return _FAIL(res, 'U_NF');
   } else {
@@ -19,7 +19,13 @@ router.get('/', jwtValidate('utype', ['admin']), asyncWrap(async (req, res, next
 }));
 
 router.post('/', jwtValidate('utype', ['admin', 'staff']), asyncWrap(async (req, res, next) => {
-  let found = await User.findOne({email: req.body.user.email})
+  let lookup_email;
+  if (req.body.utype == "participant") {
+    lookup_email = req.body.user.contact.email;
+  } else {
+    lookup_email = req.body.user.email;
+  }
+  let found = await User.findOne({email: lookup_email})
   if (found) {
     return _FAIL(res, 'REG_EMAIL');
   } else {
@@ -27,8 +33,10 @@ router.post('/', jwtValidate('utype', ['admin', 'staff']), asyncWrap(async (req,
       return _FAIL(res, 'E_UNAUTH');
     }
     req.body.user.position = req.body.utype;
-    await User.createNew(req.body.user)
-    return _CREATED(res, 'User');
+    let ret = await User.createNew(req.body.user)
+    return _CREATED(res, 'User', {
+      id: ret
+    });
   }
 }));
 
@@ -41,6 +49,14 @@ router.get('/:uid', jwtValidate('utype', ['admin']), asyncWrap(async (req, res, 
   } else {
     return _FAIL(res, 'U_NF');
   }
+}));
+
+router.delete('/:uid', jwtValidate('utype', ['admin']), asyncWrap(async (req, res, next) => {
+  if (! await User.findById(req.params.uid)) {
+    return _FAIL(res, 'U_NF');
+  }
+  await User.remove({_id: req.params.uid})
+  return _REMOVED(res, 'User');
 }));
 
 router.get('/:uid/sessions', jwtValidate('utype', ['admin', 'staff', 'participant']), asyncWrap(async (req, res, next) => {
@@ -81,7 +97,9 @@ router.delete('/:uid/sessions/:sid', jwtValidate('utype', ['admin', 'staff']), a
     if (found_session) {
       found_user.sessions.splice(found_user.sessions.indexOf(found_session._id), 1);
       found_user.save();
-      return _SUCC(res);
+      return _REMOVED(res, 'Session', {
+        id: found_sesion._id
+      });
     } else {
       return _FAIL(res, 'S_NF');
     }

@@ -81,8 +81,23 @@ module.exports._CREATED = (res, model, debug) => {
   } else if (typeof debug == 'object' && typeof middleware == 'string') {
     response['debug'] = debug;
     response['middleware'] = middleware;
+  } else if (typeof debug == "object") {
+    response['debug'] = debug;
   }
   return res.status(201).json(response);
+}
+module.exports._REMOVED = (res, model, prop) => {
+  let response = {
+    msg: 'Model instance has been removed successfully',
+    model: model
+  }
+  if (use_response_success) {
+    response['success'] = true;
+  }
+  if (typeof prop == 'object') {
+    response = Object.assign({}, prop, response);
+  }
+  return res.status(204).json(response);
 }
 
 module.exports._SUCC = (res, prop) => {
